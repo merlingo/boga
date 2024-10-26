@@ -1,54 +1,87 @@
+import hashlib
+import csv
+import os, math, array
+import requests
+
+vt_api ="f2dda88f5dd8c27aa2d58752e57bdcaec55273299138d399c69c561542a38722"
+def hashing(file):
+    in_file = open(file, "rb") # opening for [r]eading as [b]inary
+    data = in_file.read() # if you only wanted to read 512 bytes, do .read(512)
+    in_file.close() 
+    result = hashlib.md5(data)
+    return result.hexdigest()
+
+def get_entropy(file):
+    """
+        Calculate Shannon entropy
+        Entropy (x) = -p(x)*log(p(x))
+
+    :param raw_data: Binary digits
+    :return: entropy value
+    :rtype:float
+    """
+    in_file = open(file, "rb") # opening for [r]eading as [b]inary
+    raw_data = in_file.read() # if you only wanted to read 512 bytes, do .read(512)
+    if len(raw_data) == 0:
+        return 0.0
+    occurences = array.array('L', [0] * 256)
+    for x in raw_data:
+        occurences[x if isinstance(x, int) else ord(x)] += 1
+
+    entropy = 0
+    for x in occurences:
+        if x:
+            p_x = float(x) / len(raw_data)
+            entropy -= p_x * math.log(p_x, 2)
+
+    return entropy
+
+def size(file):
+    file_stats = os.stat(file)
+    return file_stats.st_size
+
+def vt_score(file):
+    resp = getVirustotalReport(file,vt_api)
+    return resp["positives"]
+
+main_functions = [size,hashing,get_entropy,vt_score]
+headers=["filename", "size", "hashing","entropy","vt_score"]
+def run(dataset,outfile):
+    with open(outfile, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',')
+        writer.writerow(headers)
+        for file in dataset:
+            print(file)
+            row = []
+            row.append(file)
+            row.extend([f(file) for f in main_functions])
+            writer.writerow(row)
+
+    print(row)
 
 
-import argparse
-import os
-import fileutil
 
-if __name__ == '__main__':
-    global_parser = argparse.ArgumentParser(prog="boga")
-    global_parser.add_argument("-d", "--dataset", help="set dataset path. dataset can be directory or file. If dataset not defined, the default dataset dir is [currentdir]/dataset")
-    global_parser.add_argument("-a", "--automatic", help="Do analyis job by using .auto file which contains all instructions. If file pat not defined, the default auto file is [currentdir]/main.auto")
-    global_parser.add_argument("-i", "--interactive", help="interactive analysis.", action="store_true")
-    global_parser.add_argument("-e", "--extension", help="interactive analysis.", action="append")
 
-    subparsers = global_parser.add_subparsers(
-    title="subcommands", help="static analysis operations"
-)
-    arg_template = {
-    "dest": "operands",
-    "type": float,
-    "nargs": 2,
-    "metavar": "OPERAND",
-    "help": "a numeric value",
-}
-    core_parser = subparsers.add_parser("core", help="core activities - data collection")
-    core_parser.add_argument(**arg_template)
-    core_parser.set_defaults(func="core")
+def getVirustotalReport(filename, API_KEY,isFile=1, proxy=None):
 
-    feature_parser = subparsers.add_parser("feature", help="feature extraction from raw data")
-    feature_parser.add_argument(**arg_template)
-    feature_parser.set_defaults(func="feature")
+      headers = {
+      "Accept-Encoding": "gzip, deflate",
+      "User-Agent" : "gzip,  My Python requests library example client or username"
+      }
+      if(isFile):
+        with open(filename, 'rb') as input_file:
+            data = input_file.read()
+            file_hash_value = hashlib.md5(data).hexdigest()
 
-    signature_parser = subparsers.add_parser("signature", help="building signature by using outputs of raw data or feature")
-    signature_parser.add_argument(**arg_template)
-    signature_parser.set_defaults(func="signature")
+      else:
+          file_hash_value = filename
+      #print(file_hash_value)
+      params = {'apikey': API_KEY, 'resource':file_hash_value}
+      if(proxy is None):
+        response = requests.get('https://www.virustotal.com/vtapi/v2/file/report',params=params, headers=headers)
+      else:
+        response = requests.get('https://www.virustotal.com/vtapi/v2/file/report', params=params, headers=headers,proxies=proxy)
 
-    model_parser = subparsers.add_parser("model", help="building detection or classification models")
-    model_parser.add_argument(**arg_template)
-    model_parser.set_defaults(func="model")
-    args = global_parser.parse_args()
-    #print(args.func(*args.operands))
-
-    dataset = args.dataset
-    automatic = args.automatic
-    extensionList = args.extension
-    if(extensionList == None):
-        #default extension list
-        extensionList= ['.exe', '.dll']
-    if(dataset ==None):
-        dataset = "./dataset"
-    print(dataset)
-    if os.path.isfile(dataset):
-        pass
-    elif os.path.isdir(dataset):
-        listOfFile = fileutil.getFilePaths(dataset, extensionList)
+      #FIXME: if result none there can be problem check this
+      json_response = response.json()
+      return json_response
