@@ -1,4 +1,5 @@
 
-
+from . import errors
 def getApiCall(filename, delimeter = ","):
-    return ""
+
+    raise errors.UnexecutableDisassemblerError("distorm3", "apicall")

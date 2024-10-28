@@ -1,16 +1,19 @@
-from core import Strings, OpCode, PEHeader, ByteCode, ApiCall
+from core import Strings, OpCode, PEHeader, ApiCall
+import os
+
+from . import errors
 def run(func,dataset,feature_type,out_ext,out_dir):
     content = ""
-    if func =="string":
-        content = Strings.getStrings(dataset)
-    elif func == "opcode":
-        content = OpCode.getOpcode(dataset)
-    elif func == "api-call":
-        content = ApiCall.getApiCall(dataset)
-    elif func == "bytecode":
-        content = ByteCode.getByteCode(dataset)
-    else:
-        raise("function should be one of them: string | opcode | api-call | bytecode")
+    for filename in dataset:
+        if func =="string":
+            Strings.getStrings(filename,out_ext,out_dir)
+        elif func == "opcode":
+            OpCode.getOpcode(filename,out_ext,out_dir)
+        elif func == "api-call":
+            ApiCall.getApiCall(filename,out_ext,out_dir)
+        elif func == "header":
+            PEHeader.getPeHeaderInformation(filename,out_ext,out_dir)    
+        else:
+            raise errors.UnsupportedFunctionSelectionError(func)
     print(func," ",dataset," ",feature_type," ",out_ext," ",out_dir)
 
-    print(content)

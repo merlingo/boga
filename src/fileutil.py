@@ -231,3 +231,19 @@ def changeFileExtension(directory, newExt, oldExt='.*'):
         else:
             destinationFilename = basefilename + newExt
             os.rename(sourceFilename, destinationFilename)
+
+
+
+def writeIntoFile(filename, out_dir, extension, content, sep=','):
+
+    # start function variables
+    dirname         = os.path.dirname(filename)
+
+
+    filename        = os.path.basename(filename)
+    (filename, ext) = os.path.splitext(filename)
+    output_filename = dirname+os.sep+out_dir+os.sep+filename+'.'+extension
+
+    os.makedirs(os.path.dirname(output_filename), exist_ok=True)
+    with open(output_filename, 'w') as output_file:
+        output_file.write(content)
