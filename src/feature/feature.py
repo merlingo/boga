@@ -1,25 +1,35 @@
 
 import os
 import errors
+import fileutil
 from feature import anomalies, exifInfo, graph, hash, histogramCalculater, peInfo, winApiFrequency, winImportFunctionFrequency
 def run(func,dataset,feature_type,out_ext,out_dir):
-    content = ""
-    for filename in dataset:
+    content = []
+    for index, filename in enumerate(dataset):
+
         if func =="anomalies":
-            anomalies.getAnomalies(filename,out_ext,out_dir)
+            content.append(anomalies.getAnomalies(filename))
         elif func == "exifinfo":
-            exifInfo.getExifInfo(filename,out_ext,out_dir)
+            content.append(exifInfo.getExifInfo(filename))
         elif func == "graph":
-            graph.getUndirectedGraph(filename,out_ext,out_dir)
+            content.append(graph.getUndirectedGraph(filename))
         elif func == "header":
-            peInfo.getInformationFromPEHeader(filename,out_ext,out_dir)    
+            content.append(peInfo.getInformationFromPEHeader(filename)   ) 
         elif func == "histogram":
-            histogramCalculater.getHistogram(filename,out_ext,out_dir)    
+            content.append( histogramCalculater.getHistogram(filename)   ) 
         elif func == "import":
-            winImportFunctionFrequency.getImportTable(filename,out_ext,out_dir)
+            content.append( winImportFunctionFrequency.getImportTable(filename))
         elif func == "frequency":
-            winApiFrequency.getWinApiListFrequency(filename,out_ext,out_dir)
+            content.append( winApiFrequency.getWinApiListFrequency(filename))
         else:
             raise errors.UnsupportedFunctionSelectionError(func)
-    print(func," ",dataset," ",feature_type," ",out_ext," ",out_dir)
-
+            
+        if content is not None:
+            
+            # Write informations into csv file
+            outfile = os.path.dirname(filename)+os.sep+out_dir+os.sep+os.path.basename(filename)+"."+out_ext
+            try:
+                fileutil.writeSingleIntoCSVFile(outfile, content)
+            except IOError as ioe:
+                print(str(ioe))
+   

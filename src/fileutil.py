@@ -247,3 +247,46 @@ def writeIntoFile(filename, out_dir, extension, content, sep=','):
     os.makedirs(os.path.dirname(output_filename), exist_ok=True)
     with open(output_filename, 'w') as output_file:
         output_file.write(content)
+
+def getAttrList(dictlist):
+    # dictlist den fieldnameleri topla (ilk deger hash)
+    fset = set()
+    fs_hash = set()
+
+    for dictionary in dictlist:
+        
+        dk = list(dictionary.keys())
+        if dk.__contains__("hash"):
+            dk.remove("hash")
+        fset.update(dk)
+        fs_hash.add(dictionary["hash"])  # hashleri topla
+
+    fs_hash.update()
+    return fset,fs_hash
+def writeSingleIntoCSVFile(filename,dictlist, delimeter=','):
+    print("features are collecting")
+    fset, fs_hash = getAttrList(dictlist) #fset is all fields in dictionary
+
+    fset.add("hash")
+    print("done: "+str(len(fset)))
+    csv_filename = filename + '.csv'
+    directory = os.path.dirname(csv_filename)
+    print(csv_filename)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    with open(csv_filename, 'w') as output_file:
+
+        writer = csv.DictWriter(output_file,delimiter=delimeter,fieldnames=list(fset))
+        writer.writeheader()
+        t = len(dictlist)
+        i=1
+        for d in dictlist:#adding fields which is not in d but in other, to d
+            len_d = len(fset.difference(set(d.keys())))
+            if(len_d >=0 ):
+                print("length of difference: "+str(len_d))
+                #for k  in fset.difference(set(d.keys())):
+                #   d[k]=0
+            print(str(i)+" - "+str(t))
+            i+=1
+            writer.writerow(d)
+        print("csv has just been written")
