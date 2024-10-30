@@ -3,7 +3,7 @@ import os
 import errors
 import fileutil
 from feature import anomalies, exifInfo, graph, hash, histogramCalculater, peInfo, winApiFrequency, winImportFunctionFrequency
-def run(func,dataset,feature_type,out_ext,out_dir):
+def run(func,dataset,out_ext,out_dir):
     content = []
     for index, filename in enumerate(dataset):
 
@@ -23,13 +23,14 @@ def run(func,dataset,feature_type,out_ext,out_dir):
             content.append( winApiFrequency.getWinApiListFrequency(filename))
         else:
             raise errors.UnsupportedFunctionSelectionError(func)
+        
+    print(content)
+    if content is not None:
             
-        if content is not None:
-            
-            # Write informations into csv file
-            outfile = os.path.dirname(filename)+os.sep+out_dir+os.sep+os.path.basename(filename)+"."+out_ext
-            try:
-                fileutil.writeSingleIntoCSVFile(outfile, content)
-            except IOError as ioe:
-                print(str(ioe))
+        # Write informations into csv file
+        outfile = os.path.dirname(filename)+os.sep+out_dir+os.sep+os.path.basename(filename)+"."+out_ext
+        try:
+            fileutil.writeSingleIntoCSVFile(outfile, content)
+        except IOError as ioe:
+            print(str(ioe))
    

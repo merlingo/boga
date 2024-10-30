@@ -1,7 +1,7 @@
 from core import Strings, OpCode, PEHeader, ApiCall
 import os
 
-from . import errors
+import errors
 def run(func,dataset,feature_type,out_ext,out_dir):
     content = ""
     for filename in dataset:

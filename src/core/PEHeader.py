@@ -1,7 +1,7 @@
 
 import pefile
 import fileutil
-from . import errors
+import errors
 def getPeHeaderInformation(filename,out_ext,out_dir, delimeter=','):
     
     """

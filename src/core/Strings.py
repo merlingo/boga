@@ -10,7 +10,7 @@
 """
 
 import re, os
-from . import errors
+import errors
 # TODO : is exist url, is exist domain, domain length, subdomain length, domain contain number, sub domain contain number
 # domain contain unresolve char, subdomain contain unresolve char
 import fileutil

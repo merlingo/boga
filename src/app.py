@@ -6,6 +6,7 @@ import core.core
 import fileutil
 import main
 from core import core
+from feature import feature
 
 
 if __name__ == '__main__':
@@ -20,13 +21,7 @@ if __name__ == '__main__':
     subparsers = global_parser.add_subparsers(dest="command",
     title="subcommands", help="static analysis operations"
 )
-    arg_template = {
-    "dest": "operands",
-    "type": float,
-    "nargs": 2,
-    "metavar": "OPERAND",
-    "help": "a numeric value",
-}
+
     core_parser = subparsers.add_parser("core", help="core activities - data collection: For each file in dataset, building one out file. Disassemble the file and extract analysis result from it into a file whose name is same but extension is different.Functions: Opcode, string, api-calls, byte code")
     core_parser.add_argument("-f","--func", help="select core function: string | opcode | apicall | bytecode")
     core_parser.add_argument("-ft", "--feature_type", help="feature type - selection for the feature type included in output file: seq | text | vec | dot")
@@ -35,16 +30,20 @@ if __name__ == '__main__':
 
 
     feature_parser = subparsers.add_parser("feature", help="feature extraction from raw data")
-    feature_parser.add_argument(**arg_template)
-    feature_parser.set_defaults(func="feature")
+    feature_parser.add_argument("-f","--func", help="select core function: anomalies | exifinfo | graph | header | histogram | import | frequency")
+    feature_parser.add_argument("-oe", "--output_ext",default="feature", help="extension list of output files.")
+    feature_parser.add_argument("-o", "--out_dir",default="/feature", help="directory which is used for output files")
 
     signature_parser = subparsers.add_parser("signature", help="building signature by using outputs of raw data or feature")
-    signature_parser.add_argument(**arg_template)
-    signature_parser.set_defaults(func="signature")
+    signature_parser.add_argument("-f","--func", help="select core function: build | test")
+    signature_parser.add_argument("-i", "--input",default="sign", help="extension list of output files.")
+    signature_parser.add_argument("-o", "--out_dir",default="/sign", help="directory which is used for output files")
 
     model_parser = subparsers.add_parser("model", help="building detection or classification models")
-    model_parser.add_argument(**arg_template)
-    model_parser.set_defaults(func="model")
+    model_parser.add_argument("-f","--func", help="select core function: train | test  | import | export")
+    model_parser.add_argument("-i", "--input",default="model", help="extension list of output files.")
+    model_parser.add_argument("-o", "--out_dir",default="/model", help="directory which is used for output files")
+
     args = global_parser.parse_args()
     #print(args.func(*args.operands))
 
@@ -83,6 +82,13 @@ if __name__ == '__main__':
 
         #print(sub_args)
         core.run(func, listOfFile, feature_type, output_ext, out_dir)
+    elif(cmd == "feature"):
+        func = args.func
+        output_ext = args.output_ext
+        out_dir = args.out_dir
+
+        #print(sub_args)
+        feature.run(func, listOfFile, output_ext, out_dir)
     
     #main.run(listOfFile,outfile)
     #2- core process çalıştırma mekanizması tasarla kodları geçir test et

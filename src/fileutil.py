@@ -10,7 +10,7 @@
 
 
 import os, sys, time, random
-import hashlib
+import hashlib, csv
 
 
 def getFilePaths(directory, extensionList=[], reverse=False):
@@ -259,7 +259,7 @@ def getAttrList(dictlist):
         if dk.__contains__("hash"):
             dk.remove("hash")
         fset.update(dk)
-        fs_hash.add(dictionary["hash"])  # hashleri topla
+        #fs_hash.add(dictionary["hash"])  # hashleri topla
 
     fs_hash.update()
     return fset,fs_hash
@@ -267,8 +267,8 @@ def writeSingleIntoCSVFile(filename,dictlist, delimeter=','):
     print("features are collecting")
     fset, fs_hash = getAttrList(dictlist) #fset is all fields in dictionary
 
-    fset.add("hash")
-    print("done: "+str(len(fset)))
+    #fset.add("hash")
+    #print("done: "+str(len(fset)))
     csv_filename = filename + '.csv'
     directory = os.path.dirname(csv_filename)
     print(csv_filename)

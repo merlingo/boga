@@ -30,7 +30,8 @@ def getHistogramOfTheFile(filename, delimeter=','):
     :return:File frequency histogram
     :rtype:dict (text_piece, frequency)
     """
-    with open(filename,'r') as input_file:
+    with open(filename,'r',encoding='utf-8',
+                 errors='ignore') as input_file:
         content = input_file.read()
 
     return calculate_histogram_of_the_text(content,delimeter=delimeter)

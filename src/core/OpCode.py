@@ -12,7 +12,7 @@
 
 
 from core import Disassembler
-from . import errors
+import errors
 import fileutil
 def extractAsText(iterable):
     content = ""
@@ -73,7 +73,7 @@ def getOpcodeList(filename, bits='32bit'):
     for (offset, size, instruction, hexdump) in iterable:
 
         # To avoid TypeError: a bytes-like object is required, not 'str'
-        instruction = instruction.decode()
+        #instruction = instruction.decode()
 
         opcode = instruction.split(" ")[0]  # get opcode
         opcode_code_list.append(opcode)

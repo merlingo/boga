@@ -10,7 +10,7 @@
 """
 
 from core import OpCode
-from lib import fileutil
+import fileutil
 import os
 def getUndirectedGraph(filename, delimeter=","):
 
