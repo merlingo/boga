@@ -9,4 +9,4 @@ RUN pip install pefile
 RUN pip install Image
 COPY ./src ./src
 
-CMD [ "python", "src/Main.py"]
+CMD [ "python", "src/app.py"]
